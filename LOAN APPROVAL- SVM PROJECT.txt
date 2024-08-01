@@ -1,0 +1,132 @@
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+
+from google.colab import files
+files.upload()
+
+loan_data=pd.read_csv('Copy of loan.csv')
+loan_data
+
+type(loan_data)
+
+loan_data.head()
+
+loan_data.shape
+
+loan_data.describe()
+
+loan_data.isnull().sum()
+
+loan_data['LoanAmount_log']= np.log(loan_data['LoanAmount'])
+loan_data['LoanAmount_log'].hist(bins=20)
+
+loan_data['TotalIncome']=loan_data['ApplicantIncome'] + loan_data['CoapplicantIncome']
+loan_data['TotalIncome_log']= np.log(loan_data['TotalIncome'])
+loan_data['TotalIncome_log'].hist(bins=20)
+
+#To remove null values from multiple rows
+loan_data['Gender'].fillna(loan_data['Gender'].mode()[0], inplace = True)
+loan_data['Married'].fillna(loan_data['Married'].mode()[0], inplace = True)
+loan_data['Self_Employed'].fillna(loan_data['Self_Employed'].mode()[0], inplace = True)
+loan_data['Dependents'].fillna(loan_data['Dependents'].mode()[0], inplace = True)
+
+loan_data['LoanAmount'] = loan_data['LoanAmount'].fillna(loan_data['LoanAmount'].mean())
+loan_data['LoanAmount_log'] = loan_data['LoanAmount_log'].fillna(loan_data['LoanAmount_log'].mean())
+
+loan_data['Loan_Amount_Term'].fillna(loan_data['Loan_Amount_Term'].mode()[0], inplace = True)
+loan_data['Credit_History'].fillna(loan_data['Credit_History'].mode()[0],inplace = True)
+
+loan_data.isnull().sum()
+
+loan_data.isnull().sum()
+
+#label encoding
+loan_data.replace({"Loan_Status":{'N':0,'Y':1}},inplace=True)
+
+#convert categorical columns to numerical values
+loan_data.replace({'Married':{'No':0,'Yes':1},'Gender':{'Male':0,'Female':1},'Self_Employed':{'No':0,'Yes':1},
+                   'Property_Area':{'Rural':0,'Semiurban':1,'Urban':2},'Education':{'Graduate':1,'Not Graduate':0}},inplace=True)
+
+loan_data.head()
+
+
+loan_data['Dependents'].value_counts()
+
+#Replacing the value of 3+ to 4
+loan_data=loan_data.replace(to_replace='3+',value=4)
+
+#Dependent  values
+loan_data['Dependents'].value_counts()
+
+print("number of people who take loan as group by Gender:")
+print(loan_data['Gender'].value_counts())
+sns.countplot(x='Gender', data = loan_data, palette = 'Set2')
+
+print("number of people who take loan as group by marital status:")
+print(loan_data['Married'].value_counts())
+sns.countplot(x='Married', data = loan_data, palette = 'Set2')
+
+print("number of people who take loan as group by dependents:")
+print(loan_data['Dependents'].value_counts())
+sns.countplot(x='Dependents', data = loan_data, palette = 'Set3')
+
+print("number of people who take loan as group by LoanAmount:")
+print(loan_data['LoanAmount'].value_counts())
+sns.countplot(x='LoanAmount', data = loan_data, palette = 'Set3')
+
+#separating thedata and labels
+x=loan_data.drop(columns=['Loan_ID','Loan_Status'],axis=1)
+y=loan_data['Loan_Status']
+
+print(x)
+
+print(y)
+
+#Train and test split
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,stratify=y,random_state=2)
+
+print(x.shape,x_train.shape,x_test.shape)
+
+print(x_train)
+
+print(y_train)
+
+x_test.to_csv('TEST_LOAN',index=False)
+files.download('TEST_LOAN')
+
+Model Training
+
+
+classifier=svm.SVC(kernel='linear')
+
+#training the support vector machine
+classifier.fit (x_train,y_train)
+
+Model Evaluation
+
+
+#accuracy on training data
+x_train_prediction=classifier.predict(x_train)
+training_data_accuracy=accuracy_score(x_train_prediction,y_train)
+
+print('accuracy on training data:',training_data_accuracy)
+
+#accuracy on test data
+x_test_prediction=classifier.predict(x_test)
+test_data_accuracy=accuracy_score(x_test_prediction,y_test)
+
+print('accuracy on test data:',test_data_accuracy)
+
+input_data=(0,1,0,1,0,3103,1300.0,80.0,360.0,1.0,2,4.382026634673881,4403.0,8.390041405755754)
+input_data_as_numpy_array=np.asarray(input_data)
+input_data_reshaped=input_data_as_numpy_array.reshape(1,-1)
+prediction=classifier.predict(input_data_reshaped)
+print(prediction)
+if(prediction[0]==1):
+  print('APPROVED')
+else:
+  print('NOT APPROVED')

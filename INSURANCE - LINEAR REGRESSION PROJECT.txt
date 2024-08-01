@@ -1,0 +1,120 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
+
+from google.colab import files
+files.upload()
+
+insurance_dataset=pd.read_csv("insurance.csv")
+insurance_dataset
+
+insurance_dataset.head()
+
+insurance_dataset.shape
+
+insurance_dataset.info()
+
+insurance_dataset.isnull().sum()
+
+DATA ANALYSIS
+
+insurance_dataset.describe()
+
+sns.set()
+plt.figure(figsize=(6,6))
+sns.histplot(insurance_dataset['age'])
+plt.title('Age Distribution')
+plt.show()
+
+plt.figure(figsize=(6,6))
+sns.countplot(x='sex',data=insurance_dataset)
+plt.title('Sex Distribution')
+plt.show
+
+insurance_dataset["sex"].value_counts()
+
+plt.figure(figsize=(6,6))
+sns.histplot(insurance_dataset['bmi'],color='red')
+plt.title('BMI Distribution')
+plt.show()
+
+Normal BMI Range :- 18.5 to 24.9
+
+plt.figure(figsize=(6,6))
+sns.countplot(x='children', data=insurance_dataset)
+plt.title('children')
+plt.show()
+
+insurance_dataset['children'].value_counts()
+
+plt.figure(figsize=(6,6))
+sns.countplot(x='smoker',data=insurance_dataset)
+plt.title('smoker')
+plt.show()
+
+insurance_dataset['smoker'].value_counts()
+
+plt.figure(figsize=(6,6))
+sns.countplot(x='region',data=insurance_dataset)
+plt.title('region')
+plt.show()
+
+insurance_dataset['region'].value_counts()
+
+sns.set()
+plt.figure(figsize=(6,6))
+sns.distplot(insurance_dataset['charges'])
+plt.title('Charges Distribution')
+plt.show()
+
+Data prepocessing
+
+Encoding the categorical features
+
+insurance_dataset.replace({'sex':{'male':0, 'female':1}},inplace=True)
+insurance_dataset.replace({'smoker':{'yes':0,'no':1}}, inplace=True)
+insurance_dataset.replace({'region':{'southeast':0,'southwest':1,'northeast':2,'northwest':3}}, inplace=True)
+
+insurance_dataset.head()
+
+Splitting the features and target
+
+x=insurance_dataset.drop(columns='charges',axis=1)
+y=insurance_dataset['charges']
+
+print(x)
+
+print(y)
+
+Splitting the data training data testing data
+
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=2)
+
+print(x.shape,x_train.shape,x_test.shape)
+
+model=LinearRegression()
+
+model.fit(x_train,y_train)
+
+Model Evaluation
+
+training_data_prediction=model.predict(x_train)
+
+r2_train=metrics.r2_score(y_train,training_data_prediction)
+print('R squared value:',r2_train)
+
+test_data_prediction=model.predict(x_test)
+
+r2_test=metrics.r2_score(y_test,test_data_prediction)
+print('R squared value:',r2_test)
+
+input_data=(62,1,26.29,0,0,0)
+input_data_as_numpy_array=np.asarray(input_data)
+input_data_reshaped=input_data_as_numpy_array.reshape(1,-1)
+prediction=model.predict(input_data_reshaped)
+print(prediction)
+print('The insurance is USD',prediction[0])
